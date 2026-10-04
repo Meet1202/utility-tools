@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://utilitytools.local/sitemap.xml
