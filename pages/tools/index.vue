@@ -37,11 +37,45 @@ const filtered = computed(() => {
   })
 })
 
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+const canonicalUrl = `${siteUrl}/tools`
+
 useSeoMeta({
   title: 'All Online Utility Tools - Complete Directory | ToolBox',
-  description: 'Browse our complete collection of free, fast, in-browser utility tools for PDF manipulation, image editing, developer utilities, and calculators.',
+  description: 'Browse our complete collection of 20+ free, fast, in-browser utility tools for PDF manipulation, image editing, developer utilities, and calculators. Zero server uploads.',
   ogTitle: 'All Online Utility Tools - Complete Directory | ToolBox',
-  ogDescription: 'Explore all client-side tools with zero server uploads.'
+  ogDescription: 'Explore all client-side tools with zero server uploads. Fast, private, in-browser utilities.',
+  ogType: 'website',
+  ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'All Online Utility Tools - Complete Directory | ToolBox',
+  twitterDescription: 'Complete collection of free, private, in-browser utilities for developers and creators.',
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+const toolsJsonLd = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'All Online Utility Tools',
+  description: 'Complete directory of free, private in-browser utilities for PDF, image, developer, text, and financial calculations.',
+  url: canonicalUrl,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'ToolBox',
+    url: siteUrl
+  }
+}))
+
+useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify(toolsJsonLd.value))
+    }
+  ]
 })
 </script>
 

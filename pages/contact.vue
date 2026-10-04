@@ -66,11 +66,45 @@ function resetForm() {
   message.value = ''
 }
 
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+const canonicalUrl = `${siteUrl}/contact`
+
 useSeoMeta({
   title: 'Contact Us & Suggest Tools | ToolBox',
   description: 'Reach out to the ToolBox team for new tool suggestions, feature requests, bug reports, or general feedback.',
   ogTitle: 'Contact Us & Suggest Tools | ToolBox',
-  ogDescription: 'Have a tool idea? Submit your feedback directly to the team.'
+  ogDescription: 'Have a tool idea? Submit your feedback directly to the ToolBox team.',
+  ogType: 'website',
+  ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Contact Us & Suggest Tools | ToolBox',
+  twitterDescription: 'Reach out for tool suggestions, bug reports, and feedback.',
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+const contactJsonLd = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact ToolBox',
+  description: 'Contact us for tool requests, feedback, or bug reports.',
+  url: canonicalUrl,
+  mainEntity: {
+    '@type': 'Organization',
+    name: 'ToolBox',
+    url: siteUrl
+  }
+}))
+
+useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify(contactJsonLd.value))
+    }
+  ]
 })
 </script>
 

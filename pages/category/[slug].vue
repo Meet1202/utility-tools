@@ -12,6 +12,10 @@ const categorySlug = computed(() => route.params.slug as string)
 const category = computed(() => CATEGORIES.find(c => c.slug === categorySlug.value))
 const tools = computed(() => getCategoryTools(categorySlug.value))
 
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+const canonicalUrl = computed(() => `${siteUrl}/category/${categorySlug.value}`)
+
 if (!category.value) {
   throw createError({
     statusCode: 404,
@@ -20,10 +24,66 @@ if (!category.value) {
 }
 
 useSeoMeta({
-  title: computed(() => `${category.value?.name || 'Category'} - Free Online Tools | ToolBox`),
-  description: computed(() => category.value?.description || 'Browse online tools.'),
-  ogTitle: computed(() => `${category.value?.name || 'Category'} - Free Online Tools | ToolBox`),
-  ogDescription: computed(() => category.value?.description || 'Browse online tools.')
+  title: computed(() => `${category.value?.name || 'Category'} Tools - Free In-Browser Utilities | ToolBox`),
+  description: computed(() => `Explore free, private in-browser ${category.value?.name.toLowerCase()} tools. ${category.value?.description} Zero data uploads.`),
+  ogTitle: computed(() => `${category.value?.name || 'Category'} Tools - Free Online Utilities | ToolBox`),
+  ogDescription: computed(() => `Explore fast and private ${category.value?.name.toLowerCase()} tools. All operations run directly in your browser.`),
+  ogType: 'website',
+  ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => `${category.value?.name || 'Category'} Tools | ToolBox`),
+  twitterDescription: computed(() => category.value?.description || 'Browse online tools.'),
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+const categoryJsonLd = computed(() => [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${category.value?.name} Utilities`,
+    description: category.value?.description,
+    url: canonicalUrl.value,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'ToolBox',
+      url: siteUrl
+    }
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Tools',
+        item: `${siteUrl}/tools`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: category.value?.name,
+        item: canonicalUrl.value
+      }
+    ]
+  }
+])
+
+useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify(categoryJsonLd.value))
+    }
+  ]
 })
 </script>
 

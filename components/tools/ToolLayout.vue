@@ -26,7 +26,7 @@ onMounted(() => {
 // Canonical URL
 const route = useRoute()
 const config = useRuntimeConfig()
-const siteUrl = 'https://utilitytools.local'
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
 const canonicalUrl = `${siteUrl}${route.path}`
 
 // SEO Meta
@@ -37,9 +37,11 @@ useSeoMeta({
   ogDescription: props.tool.seoDescription,
   ogType: 'website',
   ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
   twitterCard: 'summary_large_image',
   twitterTitle: `${props.tool.seoTitle} | ToolBox`,
-  twitterDescription: props.tool.seoDescription
+  twitterDescription: props.tool.seoDescription,
+  twitterImage: `${siteUrl}/og-image.jpg`
 })
 
 useHead({

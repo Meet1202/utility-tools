@@ -40,12 +40,25 @@ const filteredTools = computed(() => {
   })
 })
 
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+
 useSeoMeta({
   title: 'ToolBox - Fast, Free & Privacy-First Online Utilities',
-  description: 'A curated collection of fast, browser-based online tools for PDF, images, developers, and calculators. All processing happens 100% in your browser.',
+  description: 'A curated collection of 20+ fast, browser-based online tools for PDF, images, developers, and calculators. All processing happens 100% in your browser.',
   ogTitle: 'ToolBox - Fast, Free & Privacy-First Online Utilities',
   ogDescription: 'Process PDFs, compress images, format JSON, generate QR codes, and calculate finances directly on your device without server uploads.',
-  ogType: 'website'
+  ogType: 'website',
+  ogUrl: siteUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'ToolBox - Fast, Free & Privacy-First Online Utilities',
+  twitterDescription: 'Process PDFs, compress images, format JSON, generate QR codes, and calculate finances directly on your device with 100% privacy.',
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: siteUrl }]
 })
 </script>
 
@@ -133,57 +146,61 @@ useSeoMeta({
       </section>
 
       <!-- FAVORITE TOOLS (If user has favorites) -->
-      <section v-if="favoriteTools.length > 0 && !homeSearchQuery.trim()">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span class="w-2 h-6 bg-rose-500 rounded-full inline-block"></span>
-              Favorite Tools
-              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400">
-                {{ favoritesCount }}
-              </span>
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Your personal pinned utilities for fast 1-click access.
-            </p>
+      <ClientOnly>
+        <section v-if="favoriteTools.length > 0 && !homeSearchQuery.trim()">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-2 h-6 bg-rose-500 rounded-full inline-block"></span>
+                Favorite Tools
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400">
+                  {{ favoritesCount }}
+                </span>
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Your personal pinned utilities for fast 1-click access.
+              </p>
+            </div>
+            <NuxtLink
+              to="/favorites"
+              class="text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
+            >
+              Manage All
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </NuxtLink>
           </div>
-          <NuxtLink
-            to="/favorites"
-            class="text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
-          >
-            Manage All
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </NuxtLink>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <ToolCard
-            v-for="tool in favoriteTools.slice(0, 4)"
-            :key="tool.slug"
-            :tool="tool"
-          />
-        </div>
-      </section>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <ToolCard
+              v-for="tool in favoriteTools.slice(0, 4)"
+              :key="tool.slug"
+              :tool="tool"
+            />
+          </div>
+        </section>
+      </ClientOnly>
 
       <!-- RECENTLY USED TOOLS (If any) -->
-      <section v-if="recentTools.length > 0">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <span class="w-2 h-6 bg-amber-500 rounded-full inline-block"></span>
-            Recently Used
-          </h2>
-        </div>
+      <ClientOnly>
+        <section v-if="recentTools.length > 0">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 bg-amber-500 rounded-full inline-block"></span>
+              Recently Used
+            </h2>
+          </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <ToolCard
-            v-for="tool in recentTools"
-            :key="tool.slug"
-            :tool="tool"
-          />
-        </div>
-      </section>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <ToolCard
+              v-for="tool in recentTools"
+              :key="tool.slug"
+              :tool="tool"
+            />
+          </div>
+        </section>
+      </ClientOnly>
 
       <!-- POPULAR TOOLS -->
       <section v-if="!homeSearchQuery.trim()">

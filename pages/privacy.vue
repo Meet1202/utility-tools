@@ -1,9 +1,45 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+const canonicalUrl = `${siteUrl}/privacy`
+
 useSeoMeta({
   title: 'Privacy Policy & Data Security Guarantee | ToolBox',
   description: 'Our privacy guarantee: 100% of file processing and computation executes locally in your browser. We never upload your files or track your activity.',
   ogTitle: 'Privacy Policy & Data Security Guarantee | ToolBox',
-  ogDescription: 'Files never leave your machine. Read our transparent client-side privacy architecture.'
+  ogDescription: 'Files never leave your machine. Read our transparent client-side privacy architecture.',
+  ogType: 'website',
+  ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Privacy Policy & Data Security Guarantee | ToolBox',
+  twitterDescription: 'Zero server uploads. 100% in-browser processing privacy guarantee.',
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+const privacyJsonLd = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'PrivacyPolicy',
+  name: 'ToolBox Privacy Policy',
+  description: 'Our privacy guarantee: 100% of file processing and computation executes locally in your browser. We never upload your files or track your activity.',
+  url: canonicalUrl,
+  publisher: {
+    '@type': 'Organization',
+    name: 'ToolBox',
+    url: siteUrl
+  }
+}))
+
+useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify(privacyJsonLd.value))
+    }
+  ]
 })
 </script>
 

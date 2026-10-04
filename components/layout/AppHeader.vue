@@ -192,129 +192,143 @@ onUnmounted(() => {
           @mouseenter="openFavoritesMenu"
           @mouseleave="scheduleFavoritesClose"
         >
-          <button
-            type="button"
-            aria-label="Favorite tools"
-            class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
-            :title="favoritesCount > 0 ? `${favoritesCount} favorite tools` : 'Favorites'"
-            @click="isFavoritesMenuOpen = !isFavoritesMenuOpen"
-          >
-            <svg
-              class="w-5 h-5 transition-transform"
-              :class="favoritesCount > 0 ? 'fill-rose-500 text-rose-500 scale-105' : 'fill-none stroke-current stroke-2'"
-              viewBox="0 0 24 24"
+          <ClientOnly>
+            <button
+              type="button"
+              aria-label="Favorite tools"
+              class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
+              :title="favoritesCount > 0 ? `${favoritesCount} favorite tools` : 'Favorites'"
+              @click="isFavoritesMenuOpen = !isFavoritesMenuOpen"
             >
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            </svg>
-            <!-- Badge Count -->
-            <span
-              v-if="favoritesCount > 0"
-              class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+              <svg
+                class="w-5 h-5 transition-transform"
+                :class="favoritesCount > 0 ? 'fill-rose-500 text-rose-500 scale-105' : 'fill-none stroke-current stroke-2'"
+                viewBox="0 0 24 24"
+              >
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+              <!-- Badge Count -->
+              <span
+                v-if="favoritesCount > 0"
+                class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+              >
+                {{ favoritesCount }}
+              </span>
+            </button>
+
+            <!-- Favorites Dropdown Popover with zero gap bridge -->
+            <div
+              v-if="isFavoritesMenuOpen"
+              class="absolute top-full right-0 pt-2 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm z-50 animate-in fade-in zoom-in-95 duration-150"
             >
-              {{ favoritesCount }}
-            </span>
-          </button>
-
-          <!-- Favorites Dropdown Popover with zero gap bridge -->
-          <div
-            v-if="isFavoritesMenuOpen"
-            class="absolute top-full right-0 pt-2 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm z-50 animate-in fade-in zoom-in-95 duration-150"
-          >
-            <div class="bg-white dark:bg-slate-900 p-3.5 shadow-2xl border border-slate-200 dark:border-slate-800 rounded-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
-              <div class="flex items-center justify-between px-2 pb-2.5 mb-2 border-b border-slate-200 dark:border-slate-800">
-                <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 fill-rose-500 text-rose-500" viewBox="0 0 24 24">
-                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                  </svg>
-                  <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Favorite Tools ({{ favoritesCount }})
-                  </span>
-                </div>
-                <NuxtLink
-                  v-if="favoritesCount > 0"
-                  to="/favorites"
-                  class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline"
-                  @click="isFavoritesMenuOpen = false"
-                >
-                  View All
-                </NuxtLink>
-              </div>
-
-              <!-- List of favorite tools -->
-              <div v-if="favoritesCount > 0" class="max-h-72 overflow-y-auto space-y-1">
-                <div
-                  v-for="tool in favoriteTools"
-                  :key="tool.slug"
-                  class="group flex items-center justify-between p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                >
+              <div class="bg-white dark:bg-slate-900 p-3.5 shadow-2xl border border-slate-200 dark:border-slate-800 rounded-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+                <div class="flex items-center justify-between px-2 pb-2.5 mb-2 border-b border-slate-200 dark:border-slate-800">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 fill-rose-500 text-rose-500" viewBox="0 0 24 24">
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                    </svg>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Favorite Tools ({{ favoritesCount }})
+                    </span>
+                  </div>
                   <NuxtLink
-                    :to="`/tools/${tool.slug}`"
-                    class="flex items-center gap-2.5 min-w-0 flex-1 pr-2"
+                    v-if="favoritesCount > 0"
+                    to="/favorites"
+                    class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline"
                     @click="isFavoritesMenuOpen = false"
                   >
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 group-hover:bg-rose-50 group-hover:text-rose-600 dark:group-hover:bg-rose-950/60 dark:group-hover:text-rose-400 transition-colors">
-                      <ToolIcon :name="tool.icon" :size="16" />
-                    </div>
-                    <div class="truncate">
-                      <div class="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-rose-600 dark:group-hover:text-rose-400">
-                        {{ tool.name }}
-                      </div>
-                      <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate capitalize">
-                        {{ tool.category }}
-                      </div>
-                    </div>
+                    View All
                   </NuxtLink>
+                </div>
 
-                  <button
-                    type="button"
-                    title="Remove from favorites"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-                    @click.stop="removeFavorite(tool.slug)"
+                <!-- List of favorite tools -->
+                <div v-if="favoritesCount > 0" class="max-h-72 overflow-y-auto space-y-1">
+                  <div
+                    v-for="tool in favoriteTools"
+                    :key="tool.slug"
+                    class="group flex items-center justify-between p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"/>
-                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    <NuxtLink
+                      :to="`/tools/${tool.slug}`"
+                      class="flex items-center gap-2.5 min-w-0 flex-1 pr-2"
+                      @click="isFavoritesMenuOpen = false"
+                    >
+                      <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 group-hover:bg-rose-50 group-hover:text-rose-600 dark:group-hover:bg-rose-950/60 dark:group-hover:text-rose-400 transition-colors">
+                        <ToolIcon :name="tool.icon" :size="16" />
+                      </div>
+                      <div class="truncate">
+                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-rose-600 dark:group-hover:text-rose-400">
+                          {{ tool.name }}
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate capitalize">
+                          {{ tool.category }}
+                        </div>
+                      </div>
+                    </NuxtLink>
+
+                    <button
+                      type="button"
+                      title="Remove from favorites"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
+                      @click.stop="removeFavorite(tool.slug)"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Empty State in Dropdown -->
+                <div v-else class="py-6 px-4 text-center">
+                  <div class="w-10 h-10 mx-auto rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-500 flex items-center justify-center mb-2">
+                    <svg class="w-5 h-5 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                     </svg>
-                  </button>
+                  </div>
+                  <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">No favorites yet</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[220px] mx-auto">
+                    Click the heart icon on any tool to save it here for fast 1-click access.
+                  </p>
+                  <NuxtLink
+                    to="/tools"
+                    class="inline-block mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-xs"
+                    @click="isFavoritesMenuOpen = false"
+                  >
+                    Browse Tools
+                  </NuxtLink>
                 </div>
-              </div>
 
-              <!-- Empty State in Dropdown -->
-              <div v-else class="py-6 px-4 text-center">
-                <div class="w-10 h-10 mx-auto rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-500 flex items-center justify-center mb-2">
-                  <svg class="w-5 h-5 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
-                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                  </svg>
+                <!-- Dropdown Footer -->
+                <div v-if="favoritesCount > 0" class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[11px]">
+                  <span class="text-slate-500 dark:text-slate-400">Stored locally in browser</span>
+                  <NuxtLink
+                    to="/favorites"
+                    class="font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
+                    @click="isFavoritesMenuOpen = false"
+                  >
+                    Manage All
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </NuxtLink>
                 </div>
-                <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">No favorites yet</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[220px] mx-auto">
-                  Click the heart icon on any tool to save it here for fast 1-click access.
-                </p>
-                <NuxtLink
-                  to="/tools"
-                  class="inline-block mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-xs"
-                  @click="isFavoritesMenuOpen = false"
-                >
-                  Browse Tools
-                </NuxtLink>
-              </div>
-
-              <!-- Dropdown Footer -->
-              <div v-if="favoritesCount > 0" class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[11px]">
-                <span class="text-slate-500 dark:text-slate-400">Stored locally in browser</span>
-                <NuxtLink
-                  to="/favorites"
-                  class="font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
-                  @click="isFavoritesMenuOpen = false"
-                >
-                  Manage All
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </NuxtLink>
               </div>
             </div>
-          </div>
+
+            <template #fallback>
+              <button
+                type="button"
+                aria-label="Favorite tools"
+                class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+              </button>
+            </template>
+          </ClientOnly>
         </div>
 
         <!-- Theme Toggle -->
@@ -392,12 +406,14 @@ onUnmounted(() => {
           </svg>
           Favorite Tools
         </span>
-        <span
-          v-if="favoritesCount > 0"
-          class="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400"
-        >
-          {{ favoritesCount }}
-        </span>
+        <ClientOnly>
+          <span
+            v-if="favoritesCount > 0"
+            class="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400"
+          >
+            {{ favoritesCount }}
+          </span>
+        </ClientOnly>
       </NuxtLink>
       <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
         <div class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">

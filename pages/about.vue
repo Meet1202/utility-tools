@@ -1,8 +1,46 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
+const config = useRuntimeConfig()
+const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
+const canonicalUrl = `${siteUrl}/about`
+
 useSeoMeta({
   title: 'About ToolBox - Privacy-First Web Utilities',
+  description: 'Learn about ToolBox: an open suite of browser-native utilities designed for speed, privacy, and simplicity without ads, trackers, or server uploads.',
+  ogTitle: 'About ToolBox - Privacy-First Web Utilities',
+  ogDescription: 'Why we built ToolBox: 100% client-side privacy, instant performance, and open-source utility tools for creators and developers.',
+  ogType: 'website',
+  ogUrl: canonicalUrl,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'About ToolBox - Privacy-First Web Utilities',
+  twitterDescription: 'Discover ToolBox - fast, secure, browser-native online utilities.',
+  twitterImage: `${siteUrl}/og-image.jpg`
+})
+
+const aboutJsonLd = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'About ToolBox',
   description: 'Learn about ToolBox, an open suite of browser-native utilities designed for speed, privacy, and simplicity without ads or tracking.',
-  ogTitle: 'About ToolBox - Privacy-First Web Utilities'
+  url: canonicalUrl,
+  mainEntity: {
+    '@type': 'Organization',
+    name: 'ToolBox',
+    url: siteUrl,
+    logo: `${siteUrl}/favicon.svg`
+  }
+}))
+
+useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify(aboutJsonLd.value))
+    }
+  ]
 })
 </script>
 
