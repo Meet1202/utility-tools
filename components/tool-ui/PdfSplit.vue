@@ -34,6 +34,9 @@ async function onFileSelected(files: File[]) {
   resultBlob.value = null
   errorMessage.value = null
 
+  // Yield main thread before heavy PDF parsing (prevents Android Chrome OOM crash)
+  await new Promise<void>(resolve => setTimeout(resolve, 100))
+
   try {
     const buffer = await file.arrayBuffer()
     const doc = await PDFDocument.load(buffer, { ignoreEncryption: true })
@@ -155,7 +158,7 @@ function resetAll() {
       v-if="!selectedFile"
       title="Drop PDF file here to split"
       subtitle="Extract pages, split by ranges, or burst into ZIP. 100% in-browser."
-      accept=".pdf,application/pdf"
+      accept="application/pdf"
       :multiple="false"
       @files-selected="onFileSelected"
     />

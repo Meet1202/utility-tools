@@ -1,3 +1,5 @@
+import pkg from './package.json'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -25,6 +27,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      appVersion: pkg.version,
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://everyday-use-tools.vercel.app',
       supabaseUrl: process.env.SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL || '',
       supabaseKey: process.env.SUPABASE_KEY || process.env.NUXT_PUBLIC_SUPABASE_KEY || ''

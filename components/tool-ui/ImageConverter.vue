@@ -331,7 +331,7 @@ function resetAll() {
       v-if="sourceFiles.length === 0"
       title="Drop images here to convert format"
       subtitle="Convert JPG, PNG, WebP, AVIF, BMP, ICO, and Apple HEIC photos. 100% in-browser."
-      accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.gif,.svg,.ico,.heic,.heif"
+      accept="image/*"
       :multiple="true"
       @files-selected="onFilesSelected"
     />
@@ -355,10 +355,10 @@ function resetAll() {
         </div>
 
         <div class="flex items-center gap-2">
-          <label class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 hover:bg-slate-50 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer inline-flex items-center gap-1.5">
+          <label class="relative overflow-hidden px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 hover:bg-slate-50 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer inline-flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add More
-            <input type="file" multiple accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.gif,.svg,.ico,.heic,.heif" class="hidden" @change="(e) => onFilesSelected(Array.from((e.target as HTMLInputElement).files || []))" />
+            <input type="file" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" @change="(e) => { const el = e.target as HTMLInputElement; onFilesSelected(Array.from(el.files || [])); setTimeout(() => { if (el) el.value = ''; }, 300); }" />
           </label>
           <button type="button" class="text-xs font-semibold text-rose-600 hover:underline px-2 py-1" @click="resetAll">
             Clear All

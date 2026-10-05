@@ -48,6 +48,9 @@ async function onFileSelected(files: File[]) {
   extractedPages.value = []
   errorMessage.value = null
 
+  // Yield main thread before heavy PDF/pdfjs loading (prevents Android Chrome OOM crash)
+  await new Promise<void>(resolve => setTimeout(resolve, 100))
+
   try {
     const pdfjs = await getPdfJs()
     const buffer = await file.arrayBuffer()
@@ -168,7 +171,7 @@ function resetAll() {
       v-if="!selectedFile"
       title="Drop PDF file to extract images"
       subtitle="Render document pages into crisp PNG or JPG pictures with high fidelity."
-      accept=".pdf,application/pdf"
+      accept="application/pdf"
       :multiple="false"
       @files-selected="onFileSelected"
     />

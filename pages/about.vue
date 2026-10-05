@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 const config = useRuntimeConfig()
+const appVersion = (config.public.appVersion as string) || '1.0.0'
 const siteUrl = (config.public.siteUrl as string) || 'https://everyday-use-tools.vercel.app'
 const canonicalUrl = `${siteUrl}/about`
 
@@ -47,9 +48,14 @@ useHead({
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="max-w-2xl mb-12">
-      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-        About ToolBox
-      </h1>
+      <div class="flex items-center gap-3">
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          About ToolBox
+        </h1>
+        <span class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400 border border-brand-200/50 dark:border-brand-800/40">
+          v{{ appVersion }}
+        </span>
+      </div>
       <p class="mt-4 text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
         We built ToolBox to solve a simple frustration: online utilities shouldn't force you to upload sensitive documents to unverified servers or wade through spammy advertisements.
       </p>

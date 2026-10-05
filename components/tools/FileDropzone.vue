@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -28,6 +28,89 @@ const emit = defineEmits<{
 const isDragging = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const errorMsg = ref<string | null>(null)
+const isAndroid = ref(false)
+
+onMounted(() => {
+  if (typeof navigator !== 'undefined') {
+    isAndroid.value = /android/i.test(navigator.userAgent)
+  }
+})
+
+// Normalize accept attribute for desktop browsers:
+const normalizedAccept = computed(() => {
+  if (!props.accept || props.accept === '*/*') return undefined
+  
+  const tokens = props.accept.split(',').map(s => s.trim()).filter(Boolean)
+  
+  const extToMime: Record<string, string> = {
+    '.pdf': 'application/pdf',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.bmp': 'image/bmp',
+    '.ico': 'image/x-icon',
+    '.json': 'application/json',
+    '.txt': 'text/plain',
+    '.csv': 'text/csv'
+  }
+
+  const mimeTypes = new Set<string>()
+  for (const token of tokens) {
+    if (token.includes('/')) {
+      mimeTypes.add(token)
+    } else if (extToMime[token.toLowerCase()]) {
+      mimeTypes.add(extToMime[token.toLowerCase()])
+    }
+  }
+
+  if (mimeTypes.size > 0) {
+    if (Array.from(mimeTypes).some(m => m.startsWith('image/')) && mimeTypes.has('image/*')) {
+      return 'image/*'
+    }
+    return Array.from(mimeTypes).join(',')
+  }
+
+  return props.accept
+})
+
+// CRITICAL FOR ANDROID COMPATIBILITY:
+// On Android, passing ANY accept filter (such as "application/pdf" or "image/*") often causes
+// DocumentsUI (Android's system file picker) or third-party intent handlers to crash with an
+// unhandled exception in the OS ActivityManager. When DocumentsUI crashes, Android kills the calling
+// browser app immediately!
+// By omitting the accept attribute on Android devices, Android opens the safe system file picker cleanly.
+// File format safety is enforced via JavaScript validation in checkFileAccepted().
+const effectiveAccept = computed(() => {
+  if (isAndroid.value) {
+    return undefined
+  }
+  return normalizedAccept.value
+})
+
+function checkFileAccepted(file: File, acceptStr: string): boolean {
+  if (!acceptStr || acceptStr === '*/*') return true
+  const tokens = acceptStr.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+  const fileName = file.name.toLowerCase()
+  const fileType = (file.type || '').toLowerCase()
+
+  return tokens.some(token => {
+    if (token === '*/*') return true
+    if (token.startsWith('.')) {
+      return fileName.endsWith(token)
+    }
+    if (token.endsWith('/*')) {
+      const baseType = token.slice(0, -2)
+      return fileType.startsWith(baseType)
+    }
+    if (token === 'application/pdf') {
+      return fileType === 'application/pdf' || fileName.endsWith('.pdf')
+    }
+    return fileType === token || fileName.endsWith(`.${token}`)
+  })
+}
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -51,6 +134,14 @@ function validateAndEmit(files: FileList | File[]) {
       continue
     }
 
+    if (props.accept && props.accept !== '*/*') {
+      if (!checkFileAccepted(file, props.accept)) {
+        errorMsg.value = `File "${file.name}" is not a supported file format.`
+        emit('error', errorMsg.value)
+        continue
+      }
+    }
+
     validFiles.push(file)
     if (!props.multiple) break
   }
@@ -60,57 +151,70 @@ function validateAndEmit(files: FileList | File[]) {
   }
 }
 
-function onDrop(e: DragEvent) {
-  isDragging.value = false
-  if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-    const fileArray = Array.from(e.dataTransfer.files)
-    validateAndEmit(fileArray)
-  }
-}
-
 function onFileChange(e: Event) {
   const target = e.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
+  if (target && target.files && target.files.length > 0) {
     const fileArray = Array.from(target.files)
     validateAndEmit(fileArray)
-    // reset input so the same file can be re-selected if needed
-    target.value = ''
+    // Defer resetting input value to avoid interfering with Android's active file stream
+    setTimeout(() => {
+      if (target) {
+        target.value = ''
+      }
+    }, 300)
   }
 }
 
 function openFilePicker() {
   fileInput.value?.click()
 }
+
+defineExpose({
+  openFilePicker
+})
 </script>
 
 <template>
   <div class="w-full">
     <div
-      tabindex="0"
-      role="button"
-      :aria-label="title"
-      class="relative border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+      class="relative block border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900 select-none overflow-hidden"
+      style="touch-action: manipulation;"
       :class="[
         isDragging
           ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/30 scale-[1.01]'
           : 'border-slate-300 dark:border-slate-700/80 bg-white/50 dark:bg-slate-900/50 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-slate-50/80 dark:hover:bg-slate-800/50'
       ]"
-      @dragover.prevent="isDragging = true"
-      @dragleave.prevent="isDragging = false"
-      @drop.prevent="onDrop"
-      @click="openFilePicker"
-      @keydown.enter.prevent="openFilePicker"
-      @keydown.space.prevent="openFilePicker"
     >
+      <!--
+        CRITICAL FOR MOBILE / ANDROID COMPATIBILITY:
+        The native <input type="file"> is positioned as an invisible overlay (absolute inset-0)
+        covering 100% of the dropzone with opacity: 0 and normal pointer-events.
+        
+        Why this solves Android browser crash:
+        1. On Android Chrome, wrapping an <input type="file"> inside a <label for="..."> or using
+           position:fixed 1x1 with pointer-events:none triggers an indirect/synthetic activation.
+           DocumentsUI / Chrome's SelectFileDialogImpl fails to compute touch coordinates or encounters
+           invalid bounds, causing Android Chrome to terminate / crash.
+        2. With an overlay input, the user's finger taps DIRECTLY on the native <input type="file">
+           with authentic touch coordinates and full geometry (e.g. 400x160px).
+        3. No double click bubbling or synthetic event dispatch.
+      -->
       <input
         ref="fileInput"
         type="file"
-        :accept="accept"
+        :accept="effectiveAccept"
         :multiple="multiple"
-        class="hidden"
+        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        style="touch-action: manipulation;"
+        tabindex="0"
+        :aria-label="title"
         @change="onFileChange"
+        @dragover="isDragging = true"
+        @dragleave="isDragging = false"
+        @drop="isDragging = false"
       />
 
+      <!-- Visual Content (under the transparent input overlay) -->
       <div class="flex flex-col items-center justify-center pointer-events-none">
         <div
           class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300"
@@ -133,7 +237,7 @@ function openFilePicker() {
         </p>
 
         <div class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[11px] sm:text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-          <span>{{ accept === '*/*' ? 'All formats' : accept }}</span>
+          <span>{{ !accept || accept === '*/*' ? 'All formats' : accept }}</span>
           <span>•</span>
           <span>Max {{ maxSizeMb }}MB</span>
         </div>

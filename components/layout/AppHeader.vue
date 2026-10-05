@@ -95,9 +95,9 @@ onUnmounted(() => {
           </svg>
         </div>
         <div class="flex flex-col">
-          <span class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">
-            Tool<span class="text-brand-600 dark:text-brand-400">Box</span>
-          </span>
+            <span class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">
+              Tool<span class="text-brand-600 dark:text-brand-400">Box</span>
+            </span>
           <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase mt-0.5">
             Private & In-Browser
           </span>

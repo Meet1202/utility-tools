@@ -160,7 +160,7 @@ function resetAll() {
       v-if="!selectedFile"
       title="Drop image here to resize"
       subtitle="Resize by pixels or percentage scale with social media presets."
-      accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.gif"
+      accept="image/*"
       :multiple="false"
       @files-selected="onFileSelected"
     />

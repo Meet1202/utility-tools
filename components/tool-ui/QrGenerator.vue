@@ -181,6 +181,7 @@ function onLogoUpload(e: Event) {
       logoDataUrl.value = event.target?.result as string
     }
     reader.readAsDataURL(file)
+    input.value = ''
   }
 }
 
@@ -579,14 +580,14 @@ function resetForm() {
             Center Logo (Auto-switches to Level H Error Correction)
           </label>
           <div v-if="!logoDataUrl" class="flex items-center gap-3">
-            <label class="px-3.5 py-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 cursor-pointer text-xs font-medium text-slate-600 dark:text-slate-300 inline-flex items-center gap-2">
+            <label class="relative overflow-hidden px-3.5 py-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 cursor-pointer text-xs font-medium text-slate-600 dark:text-slate-300 inline-flex items-center gap-2">
               <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17 8 12 3 7 8"/>
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
               Upload PNG / SVG Logo
-              <input type="file" accept="image/*" class="hidden" @change="onLogoUpload" />
+              <input type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" @change="onLogoUpload" />
             </label>
           </div>
           <div v-else class="flex items-center gap-3">

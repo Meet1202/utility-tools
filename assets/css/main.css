@@ -14,8 +14,8 @@
     overflow-x: hidden;
   }
 
-  /* Accessible touch targets */
-  button, a {
+  /* Accessible touch targets - no tap delay */
+  button, a, label[for] {
     touch-action: manipulation;
   }
 }

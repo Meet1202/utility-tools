@@ -25,9 +25,25 @@ const totalPagesMerged = ref(0)
 
 async function onFilesSelected(files: File[]) {
   errorMessage.value = null
+
+  // Yield the main thread before any heavy PDF parsing.
+  // On Android Chrome, doing heavy work (ArrayBuffer + pdf-lib parse) synchronously
+  // right after the file picker closes can trigger an OOM tab crash.
+  await new Promise<void>(resolve => setTimeout(resolve, 100))
+
   for (const file of files) {
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
       continue
+    }
+
+    // Warn on very large files on mobile where memory is constrained
+    const MOBILE_WARN_MB = 30
+    if (file.size > MOBILE_WARN_MB * 1024 * 1024) {
+      const proceed = confirm(
+        `"${file.name}" is ${(file.size / 1024 / 1024).toFixed(1)} MB. ` +
+        `Large files may be slow or crash on mobile. Continue?`
+      )
+      if (!proceed) continue
     }
 
     try {
@@ -120,7 +136,7 @@ function resetAll() {
     <FileDropzone
       title="Drop PDF files here, or click to browse"
       subtitle="Select multiple PDFs to combine. Files stay 100% on your device."
-      accept=".pdf,application/pdf"
+      accept="application/pdf"
       :multiple="true"
       @files-selected="onFilesSelected"
     />

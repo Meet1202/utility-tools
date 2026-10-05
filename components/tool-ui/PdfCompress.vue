@@ -78,7 +78,7 @@ function resetAll() {
       v-if="!selectedFile"
       title="Drop PDF file here to compress"
       subtitle="Reduce PDF file size in your browser without uploading to a server."
-      accept=".pdf,application/pdf"
+      accept="application/pdf"
       :multiple="false"
       @files-selected="onFileSelected"
     />

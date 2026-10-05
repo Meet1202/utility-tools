@@ -3,6 +3,8 @@ import { useToolRegistry } from '~/composables/useToolRegistry'
 
 const { categories, tools } = useToolRegistry()
 const currentYear = new Date().getFullYear()
+const config = useRuntimeConfig()
+const appVersion = (config.public.appVersion as string) || '1.0.0'
 </script>
 
 <template>
@@ -95,6 +97,12 @@ const currentYear = new Date().getFullYear()
           </h3>
           <ul class="space-y-2.5 text-sm">
             <li>
+              <NuxtLink to="/products" class="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1.5 font-medium">
+                Our Products & Ecosystem
+                <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300 font-semibold border border-brand-200/50 dark:border-brand-800/40">New</span>
+              </NuxtLink>
+            </li>
+            <li>
               <NuxtLink to="/about" class="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                 About ToolBox
               </NuxtLink>
@@ -114,7 +122,13 @@ const currentYear = new Date().getFullYear()
       </div>
 
       <div class="mt-12 pt-8 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <p>© {{ currentYear }} ToolBox</p>
+        <div class="flex items-center gap-2">
+          <p>© {{ currentYear }} ToolBox</p>
+          <span>•</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-mono text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+            v{{ appVersion }}
+          </span>
+        </div>
         <p>All processing occurs locally on your device • Zero tracking scripts</p>
       </div>
     </div>
